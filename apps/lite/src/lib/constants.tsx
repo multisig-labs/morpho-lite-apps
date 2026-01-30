@@ -1,7 +1,7 @@
 import { SafeLink } from "@morpho-org/uikit/components/safe-link";
 import { type Deployments } from "@morpho-org/uikit/lib/deployments";
 import { ReactNode } from "react";
-import { hemi, optimism, plumeMainnet, polygon, sei, worldchain } from "wagmi/chains";
+import { avalanche, hemi, optimism, plumeMainnet, polygon, sei, worldchain } from "wagmi/chains";
 
 export const APP_DETAILS = {
   // NOTE: Should always match the title in `index.html` (won't break anything, but should be correct)
@@ -15,7 +15,7 @@ export const WORDMARK = ""; // Replace with "/your-wordmark.svg" to customize in
 
 export const MIN_TIMELOCK = 3 * 24 * 60 * 60; // For filtering vaults
 
-export const DEFAULT_CHAIN = plumeMainnet;
+export const DEFAULT_CHAIN = avalanche;
 
 export const TRANSACTION_DATA_SUFFIX = "0x117E"; // (L I T E)
 

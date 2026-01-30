@@ -2,6 +2,7 @@ import { Address } from "viem";
 import {
   abstract,
   arbitrum,
+  avalanche,
   base,
   bitlayer,
   bsc,
@@ -31,7 +32,7 @@ import * as customChains from "@/lib/chains";
 
 type MorphoContractName = "Morpho" | "MetaMorphoFactory" | "MetaMorphoV1_1Factory";
 
-type OptionalContracts = "MetaMorphoFactory";
+type OptionalContracts = "MetaMorphoFactory" | "MetaMorphoV1_1Factory";
 type RequiredContracts = Exclude<MorphoContractName, OptionalContracts>;
 type DeploymentDetails = { address: Address; fromBlock: bigint };
 export type Deployments = {
@@ -60,6 +61,9 @@ export const DEPLOYMENTS: Deployments = {
   [arbitrum.id]: {
     Morpho: { address: "0x6c247b1F6182318877311737BaC0844bAa518F5e", fromBlock: 296446593n },
     MetaMorphoV1_1Factory: { address: "0x878988f5f561081deEa117717052164ea1Ef0c82", fromBlock: 296447195n },
+  },
+  [avalanche.id]: {
+    Morpho: { address: "0x895383274303AA19fe978AFB4Ac55C7f094f982C", fromBlock: 75313888n },
   },
   [optimism.id]: {
     Morpho: { address: "0xce95AfbB8EA029495c66020883F87aaE8864AF92", fromBlock: 130770075n },

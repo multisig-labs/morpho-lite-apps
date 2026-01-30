@@ -12,6 +12,7 @@ import {
 import {
   abstract,
   arbitrum,
+  avalanche,
   base,
   bsc,
   celo,
@@ -74,6 +75,7 @@ const chains = [
   customChains.monad,
   // fallback support (alphabetical)
   abstract,
+  avalanche,
   bsc,
   celo,
   corn,
@@ -141,6 +143,11 @@ const transports: Record<(typeof chains)[number]["id"], Transport> = {
     ...customChains.hyperevm.rpcUrls.default.http.map((url) => ({ url, batch: false })),
   ]),
   // fallback support
+  [avalanche.id]: createFallbackTransport([
+    { url: "https://avalanche.gateway.tenderly.co", batch: { batchSize: 10 } },
+    { url: "https://rpc.ankr.com/avalanche", batch: { batchSize: 10 } },
+    { url: "https://avalanche.drpc.org", batch: false },
+  ]),
   [ink.id]: createFallbackTransport([
     { url: "https://ink.gateway.tenderly.co", batch: { batchSize: 10 } },
     { url: "https://rpc-gel.inkonchain.com", batch: false },

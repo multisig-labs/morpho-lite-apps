@@ -5,6 +5,7 @@ import { CreateConnectorFn, createConfig as createWagmiConfig, fallback, http, t
 import {
   abstract,
   arbitrum,
+  avalanche,
   base,
   celo,
   corn,
@@ -81,6 +82,7 @@ const chains = [
   arbitrum,
   customChains.hyperevm,
   // lite support (alphabetical)
+  avalanche,
   // abstract,
   celo,
   // corn,
@@ -154,6 +156,10 @@ const transports: { [K in (typeof chains)[number]["id"]]: Transport } & { [k: nu
   [celo.id]: createFallbackTransport([
     ...createPrivateProxyHttp(celo.id),
     { url: "https://celo.drpc.org", batch: false },
+  ]),
+  [avalanche.id]: createFallbackTransport([
+    { url: "https://avalanche.gateway.tenderly.co", batch: { batchSize: 10 } },
+    { url: "https://avalanche.drpc.org", batch: false },
   ]),
   [corn.id]: createFallbackTransport([
     { url: "https://corn.gateway.tenderly.co", batch: { batchSize: 10 } },

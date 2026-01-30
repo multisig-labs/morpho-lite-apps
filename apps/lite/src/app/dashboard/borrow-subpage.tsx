@@ -21,6 +21,7 @@ import { useMarkets } from "@/hooks/use-markets";
 import * as Merkl from "@/hooks/use-merkl-campaigns";
 import { useMerklOpportunities } from "@/hooks/use-merkl-opportunities";
 import { useTopNCurators } from "@/hooks/use-top-n-curators";
+import { useVaultV2Markets } from "@/hooks/use-vault-v2-markets";
 import { type DisplayableCurators, getDisplayableCurators } from "@/lib/curators";
 import { CREATE_METAMORPHO_EVENT_OVERRIDES, getDeploylessMode, getShouldEnforceDeadDeposit } from "@/lib/overrides";
 import { getTokenURI } from "@/lib/tokens";
@@ -52,6 +53,9 @@ export function BorrowSubPage() {
 
   const borrowingRewards = useMerklOpportunities({ chainId, side: Merkl.CampaignSide.BORROW, userAddress });
 
+  // MARK: Fetch VaultV2 data (for chains like Avalanche that have VaultV2 vaults)
+  const { vaultV2Data, allMarketIds: vaultV2MarketIds } = useVaultV2Markets({ chainId });
+  console.log("vaultV2Data", vaultV2Data);
   // MARK: Index `MetaMorphoFactory.CreateMetaMorpho` on all factory versions to get a list of all vault addresses
   const fromBlock = factory?.fromBlock ?? factoryV1_1?.fromBlock;
   const {
@@ -115,8 +119,10 @@ export function BorrowSubPage() {
         })
         .map((alloc) => alloc.id),
     );
-    return [...new Set(filteredAllocationMarketIds)];
-  }, [shouldEnforceDeadDeposit, vaultsData]);
+    // Merge VaultV2 market IDs (from chains like Avalanche)
+    const allIds = [...filteredAllocationMarketIds, ...vaultV2MarketIds];
+    return [...new Set(allIds)];
+  }, [shouldEnforceDeadDeposit, vaultsData, vaultV2MarketIds]);
   const markets = useMarkets({ chainId, marketIds, staleTime: STALE_TIME, fetchPrices: true });
   const marketsArr = useMemo(() => {
     const marketsArr = Object.values(markets).filter(
@@ -139,6 +145,7 @@ export function BorrowSubPage() {
       { name: string; address: Address; totalAssets: bigint; curators: DisplayableCurators }[]
     >();
 
+    // Add MetaMorpho vaults
     vaultsData?.forEach((vaultData) => {
       vaultData.allocations.forEach((allocation) => {
         if (!allocation.config.enabled || allocation.position.supplyShares === 0n) return;
@@ -155,8 +162,24 @@ export function BorrowSubPage() {
       });
     });
 
+    // Add VaultV2 vaults (for chains like Avalanche)
+    vaultV2Data.forEach((vault) => {
+      vault.marketIds.forEach((marketId) => {
+        if (!map.has(marketId)) {
+          map.set(marketId, []);
+        }
+        map.get(marketId)!.push({
+          name: vault.name,
+          address: vault.address,
+          totalAssets: vault.totalAssets,
+          // VaultV2 doesn't use the same curator system, so we pass empty curators
+          curators: {},
+        });
+      });
+    });
+
     return map;
-  }, [vaultsData, curators, chainId]);
+  }, [vaultsData, curators, chainId, vaultV2Data]);
 
   const { data: erc20Symbols } = useReadContracts({
     contracts: marketsArr

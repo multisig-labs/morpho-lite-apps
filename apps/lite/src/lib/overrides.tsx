@@ -1,10 +1,15 @@
 import { tac } from "@morpho-org/uikit/lib/chains/tac";
 import { CORE_DEPLOYMENTS } from "@morpho-org/uikit/lib/deployments";
 import { type Address } from "viem";
-import { celo, sei } from "viem/chains";
+import { avalanche, celo, sei } from "viem/chains";
 
 export const CREATE_METAMORPHO_EVENT_OVERRIDES: Record<number, Address[]> = {
   [sei.id]: ["0x015F10a56e97e02437D294815D8e079e1903E41C", "0x948FcC6b7f68f4830Cd69dB1481a9e1A142A4923"],
+};
+
+// VaultV2 vaults that should be included in the borrow page (different architecture from MetaMorpho)
+export const VAULT_V2_OVERRIDES: Record<number, Address[]> = {
+  [avalanche.id]: ["0x10f547614327D67d2f19A3d04c49550E4D07AD04"],
 };
 
 // TODO: For now, we use bytecode deployless reads on TAC, since the RPC doesn't support `stateOverride`.

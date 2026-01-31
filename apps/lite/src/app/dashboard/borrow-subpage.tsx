@@ -55,7 +55,7 @@ export function BorrowSubPage() {
 
   // MARK: Fetch VaultV2 data (for chains like Avalanche that have VaultV2 vaults)
   const { vaultV2Data, allMarketIds: vaultV2MarketIds } = useVaultV2Markets({ chainId });
-  console.log("vaultV2Data", vaultV2Data);
+
   // MARK: Index `MetaMorphoFactory.CreateMetaMorpho` on all factory versions to get a list of all vault addresses
   const fromBlock = factory?.fromBlock ?? factoryV1_1?.fromBlock;
   const {

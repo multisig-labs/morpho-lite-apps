@@ -25,10 +25,12 @@ import { useAccount, useReadContract, useReadContracts } from "wagmi";
 
 import { CtaCard } from "@/components/cta-card";
 import { EarnTable } from "@/components/earn-table";
+import { VaultV2EarnTable } from "@/components/vault-v2-earn-table";
 import { useMarkets } from "@/hooks/use-markets";
 import * as Merkl from "@/hooks/use-merkl-campaigns";
 import { useMerklOpportunities } from "@/hooks/use-merkl-opportunities";
 import { useTopNCurators } from "@/hooks/use-top-n-curators";
+import { useVaultV2Markets } from "@/hooks/use-vault-v2-markets";
 import { getDisplayableCurators } from "@/lib/curators";
 import { CREATE_METAMORPHO_EVENT_OVERRIDES, getDeploylessMode, getShouldEnforceDeadDeposit } from "@/lib/overrides";
 import { getTokenURI } from "@/lib/tokens";
@@ -54,6 +56,16 @@ export function EarnSubPage() {
   );
 
   const lendingRewards = useMerklOpportunities({ chainId, side: Merkl.CampaignSide.EARN, userAddress });
+
+  // MARK: Fetch VaultV2 data (for chains like Avalanche that have VaultV2 vaults)
+  const {
+    vaultV2Data,
+    hasVaultV2,
+    refetchUserBalances: refetchVaultV2Balances,
+  } = useVaultV2Markets({
+    chainId,
+    userAddress,
+  });
 
   // MARK: Index `MetaMorphoFactory.CreateMetaMorpho` on all factory versions to get a list of all vault addresses
   const fromBlock = factory?.fromBlock ?? factoryV1_1?.fromBlock;
@@ -283,18 +295,31 @@ export function EarnSubPage() {
           />
         </div>
       ) : (
-        userRows.length > 0 && (
-          <div className="bg-linear-to-b lg:pt-22 flex h-fit w-full flex-col items-center from-transparent to-white/[0.03] pb-20">
-            <EarnTable
-              chain={chain}
-              rows={userRows}
-              depositsMode="userAssets"
-              tokens={tokens}
-              lendingRewards={lendingRewards}
-              refetchPositions={refetchBalanceOf}
-            />
-          </div>
-        )
+        <>
+          {userRows.length > 0 && (
+            <div className="bg-linear-to-b lg:pt-22 flex h-fit w-full flex-col items-center from-transparent to-white/[0.03] pb-20">
+              <EarnTable
+                chain={chain}
+                rows={userRows}
+                depositsMode="userAssets"
+                tokens={tokens}
+                lendingRewards={lendingRewards}
+                refetchPositions={refetchBalanceOf}
+              />
+            </div>
+          )}
+          {/* VaultV2 user positions */}
+          {hasVaultV2 && vaultV2Data.some((v) => (v.userShares ?? 0n) > 0n) && (
+            <div className="bg-linear-to-b lg:pt-22 flex h-fit w-full flex-col items-center from-transparent to-white/[0.03] pb-20">
+              <VaultV2EarnTable
+                chain={chain}
+                vaults={vaultV2Data.filter((v) => (v.userShares ?? 0n) > 0n)}
+                depositsMode="userAssets"
+                refetchPositions={refetchVaultV2Balances}
+              />
+            </div>
+          )}
+        </>
       )}
       {/*
       Outer div ensures background color matches the end of the gradient from the div above,
@@ -302,14 +327,27 @@ export function EarnSubPage() {
       */}
       <div className="flex grow flex-col bg-white/[0.03]">
         <div className="bg-linear-to-b from-background to-primary flex h-full grow justify-center rounded-t-xl pb-16 pt-8">
-          <EarnTable
-            chain={chain}
-            rows={rows}
-            depositsMode="totalAssets"
-            tokens={tokens}
-            lendingRewards={lendingRewards}
-            refetchPositions={refetchBalanceOf}
-          />
+          <div className="text-primary-foreground w-full max-w-7xl px-2 lg:px-8">
+            {rows.length > 0 && (
+              <EarnTable
+                chain={chain}
+                rows={rows}
+                depositsMode="totalAssets"
+                tokens={tokens}
+                lendingRewards={lendingRewards}
+                refetchPositions={refetchBalanceOf}
+              />
+            )}
+            {/* VaultV2 vaults */}
+            {hasVaultV2 && (
+              <VaultV2EarnTable
+                chain={chain}
+                vaults={vaultV2Data}
+                depositsMode="totalAssets"
+                refetchPositions={refetchVaultV2Balances}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

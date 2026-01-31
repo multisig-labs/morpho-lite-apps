@@ -13,6 +13,8 @@ export interface VaultV2Data {
   owner: Address;
   totalAssets: bigint;
   marketIds: Hex[];
+  // For earn page - user's share balance
+  userShares?: bigint;
 }
 
 const STALE_TIME = 5 * 60 * 1000;
@@ -21,7 +23,13 @@ const STALE_TIME = 5 * 60 * 1000;
  * Hook to fetch VaultV2 data and extract Morpho Blue market IDs from its adapters.
  * Only activates if there are VaultV2 overrides configured for the given chainId.
  */
-export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) {
+export function useVaultV2Markets({
+  chainId,
+  userAddress,
+}: {
+  chainId: number | undefined;
+  userAddress?: Address;
+}) {
   const vaultAddresses = useMemo(() => (chainId !== undefined ? (VAULT_V2_OVERRIDES[chainId] ?? []) : []), [chainId]);
   const hasVaultV2 = vaultAddresses.length > 0;
 
@@ -41,7 +49,6 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
       gcTime: Infinity,
     },
   });
-  console.log("vaultBasicData", vaultBasicData);
 
   // Parse vault basic data and adapters lengths
   const vaultInfos = useMemo(() => {
@@ -88,7 +95,6 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
       gcTime: Infinity,
     },
   });
-  console.log("adapterAddressesData", adapterAddressesData);
 
   // Parse adapter addresses per vault
   const vaultAdapters = useMemo(() => {
@@ -108,7 +114,6 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
 
   // Step 3: Fetch marketIdsLength from each adapter
   const allAdapters = useMemo(() => vaultAdapters.flatMap((v) => v.adapters), [vaultAdapters]);
-  console.log("allAdapters", allAdapters);
 
   const { data: marketIdsLengthData } = useReadContracts({
     contracts: allAdapters.map(
@@ -127,7 +132,6 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
       gcTime: Infinity,
     },
   });
-  console.log("marketIdsLengthData", marketIdsLengthData);
 
   // Parse marketIds lengths per adapter
   const adapterMarketLengths = useMemo(() => {
@@ -137,7 +141,6 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
       length: Number(marketIdsLengthData[idx]?.result ?? 0n),
     }));
   }, [allAdapters, marketIdsLengthData]);
-  console.log("adapterMarketLengths", adapterMarketLengths);
 
   // Step 4: Fetch all marketIds from all adapters
   const marketIdQueries = useMemo(() => {
@@ -151,7 +154,6 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
       })),
     );
   }, [chainId, adapterMarketLengths]);
-  console.log("marketIdQueries", marketIdQueries);
 
   const { data: marketIdsData } = useReadContracts({
     contracts: marketIdQueries,
@@ -162,11 +164,30 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
       gcTime: Infinity,
     },
   });
-  console.log("marketIdsData", marketIdsData);
+
+  // Step 5: Fetch user balances in VaultV2 vaults (for earn page)
+  const { data: userBalancesData, refetch: refetchUserBalances } = useReadContracts({
+    contracts: vaultAddresses.map(
+      (vaultAddress) =>
+        ({
+          chainId,
+          address: vaultAddress,
+          abi: vaultV2Abi,
+          functionName: "balanceOf",
+          args: userAddress ? [userAddress] : undefined,
+        }) as const,
+    ),
+    allowFailure: true,
+    query: {
+      enabled: hasVaultV2 && chainId !== undefined && !!userAddress,
+      staleTime: STALE_TIME,
+      gcTime: Infinity,
+    },
+  });
 
   // Assemble final VaultV2Data array
   const vaultV2Data = useMemo((): VaultV2Data[] => {
-    if (!marketIdsData || vaultAdapters.length === 0) return [];
+    if (vaultAdapters.length === 0) return [];
 
     // Build a map of adapter -> marketIds
     const adapterMarketIds = new Map<Address, Hex[]>();
@@ -174,20 +195,22 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
     for (const { adapter, length } of adapterMarketLengths) {
       const ids: Hex[] = [];
       for (let i = 0; i < length; i++) {
-        const marketId = marketIdsData[queryIdx]?.result as Hex | undefined;
+        const marketId = marketIdsData?.[queryIdx]?.result as Hex | undefined;
         if (marketId) ids.push(marketId);
         queryIdx++;
       }
       adapterMarketIds.set(adapter, ids);
     }
 
-    // Map vault data with their market IDs
-    return vaultAdapters.map((vault) => {
+    // Map vault data with their market IDs and user balances
+    return vaultAdapters.map((vault, idx) => {
       const marketIdsSet = new Set<Hex>();
       for (const adapter of vault.adapters) {
         const ids = adapterMarketIds.get(adapter) ?? [];
         ids.forEach((id) => marketIdsSet.add(id));
       }
+
+      const userShares = userBalancesData?.[idx]?.result as bigint | undefined;
 
       return {
         address: vault.vaultAddress,
@@ -196,9 +219,10 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
         owner: vault.owner,
         totalAssets: vault.totalAssets,
         marketIds: [...marketIdsSet],
+        userShares,
       };
     });
-  }, [vaultAdapters, adapterMarketLengths, marketIdsData]);
+  }, [vaultAdapters, adapterMarketLengths, marketIdsData, userBalancesData]);
 
   // Compute all unique market IDs across all VaultV2 vaults
   const allMarketIds = useMemo(() => {
@@ -211,5 +235,6 @@ export function useVaultV2Markets({ chainId }: { chainId: number | undefined }) 
     vaultV2Data,
     allMarketIds,
     hasVaultV2,
+    refetchUserBalances,
   };
 }

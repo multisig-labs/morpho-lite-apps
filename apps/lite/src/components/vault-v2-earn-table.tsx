@@ -1,5 +1,6 @@
 import { vaultV2Abi } from "@morpho-org/uikit/assets/abis/vault-v2";
 import { Avatar, AvatarFallback, AvatarImage } from "@morpho-org/uikit/components/shadcn/avatar";
+import { Button } from "@morpho-org/uikit/components/shadcn/button";
 import { Sheet, SheetTrigger } from "@morpho-org/uikit/components/shadcn/sheet";
 import {
   Table,
@@ -10,10 +11,11 @@ import {
   TableRow,
 } from "@morpho-org/uikit/components/shadcn/table";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@morpho-org/uikit/components/shadcn/tooltip";
-import { formatBalanceWithSymbol, abbreviateAddress } from "@morpho-org/uikit/lib/utils";
+import { formatBalanceWithSymbol, abbreviateAddress, getChainSlug } from "@morpho-org/uikit/lib/utils";
 import { blo } from "blo";
 import { ExternalLink } from "lucide-react";
 import { useMemo } from "react";
+import { Link } from "react-router";
 import { type Chain, type Address, erc20Abi } from "viem";
 import { useReadContracts } from "wagmi";
 
@@ -131,7 +133,8 @@ export function VaultV2EarnTable({
           <TableHead className="text-secondary-foreground rounded-l-lg pl-4 text-xs font-light">Vault</TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Deposits</TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Owner</TableHead>
-          <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light">Type</TableHead>
+          <TableHead className="text-secondary-foreground text-xs font-light">Type</TableHead>
+          <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -170,8 +173,18 @@ export function VaultV2EarnTable({
                   <TableCell>
                     <code>{abbreviateAddress(vault.owner)}</code>
                   </TableCell>
-                  <TableCell className="rounded-r-lg">
+                  <TableCell>
                     <span className="text-xs text-gray-400">VaultV2</span>
+                  </TableCell>
+                  <TableCell className="rounded-r-lg">
+                    <Link
+                      to={`/${chain ? getChainSlug(chain) : ""}/vault-v2/${vault.address}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Button variant="secondary" size="sm">
+                        Details
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               </SheetTrigger>

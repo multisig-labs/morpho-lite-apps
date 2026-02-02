@@ -2,6 +2,7 @@ import { AccrualVault } from "@morpho-org/blue-sdk";
 import { AvatarStack } from "@morpho-org/uikit/components/avatar-stack";
 import { SafeLink } from "@morpho-org/uikit/components/safe-link";
 import { AvatarImage, AvatarFallback, Avatar } from "@morpho-org/uikit/components/shadcn/avatar";
+import { Button } from "@morpho-org/uikit/components/shadcn/button";
 import { Sheet, SheetTrigger } from "@morpho-org/uikit/components/shadcn/sheet";
 import {
   TableHeader,
@@ -13,11 +14,18 @@ import {
 } from "@morpho-org/uikit/components/shadcn/table";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@morpho-org/uikit/components/shadcn/tooltip";
 import { useModifierKey } from "@morpho-org/uikit/hooks/use-modifier-key";
-import { formatBalanceWithSymbol, Token, formatLtv, abbreviateAddress } from "@morpho-org/uikit/lib/utils";
+import {
+  formatBalanceWithSymbol,
+  Token,
+  formatLtv,
+  abbreviateAddress,
+  getChainSlug,
+} from "@morpho-org/uikit/lib/utils";
 import { blo } from "blo";
 // @ts-expect-error: this package lacks types
 import humanizeDuration from "humanize-duration";
 import { ClockAlert, ExternalLink } from "lucide-react";
+import { Link } from "react-router";
 import { Chain, hashMessage, Address, zeroAddress, formatUnits } from "viem";
 
 import { EarnSheetContent } from "@/components/earn-sheet-content";
@@ -254,7 +262,8 @@ export function EarnTable({
             <TableHead className="text-secondary-foreground text-xs font-light">Deposits</TableHead>
             <TableHead className="text-secondary-foreground text-xs font-light">Curator</TableHead>
             <TableHead className="text-secondary-foreground text-xs font-light">Collateral</TableHead>
-            <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light">APY</TableHead>
+            <TableHead className="text-secondary-foreground text-xs font-light">APY</TableHead>
+            <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -322,8 +331,18 @@ export function EarnTable({
                     <TableCell className="min-w-[120px]">
                       <CollateralsTableCell vault={row.vault} chain={chain} tokens={tokens} />
                     </TableCell>
-                    <TableCell className="rounded-r-lg">
+                    <TableCell>
                       <ApyTableCell nativeApy={row.vault.apy} fee={row.vault.fee} rewards={rewards} mode="earn" />
+                    </TableCell>
+                    <TableCell className="rounded-r-lg">
+                      <Link
+                        to={`/${chain ? getChainSlug(chain) : ""}/vault/${row.vault.address}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button variant="secondary" size="sm">
+                          Details
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 </SheetTrigger>

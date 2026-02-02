@@ -2,6 +2,7 @@ import { AccrualPosition, Market, type MarketId } from "@morpho-org/blue-sdk";
 import { AvatarStack } from "@morpho-org/uikit/components/avatar-stack";
 import { SafeLink } from "@morpho-org/uikit/components/safe-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@morpho-org/uikit/components/shadcn/avatar";
+import { Button } from "@morpho-org/uikit/components/shadcn/button";
 import { Sheet, SheetTrigger } from "@morpho-org/uikit/components/shadcn/sheet";
 import {
   Table,
@@ -12,10 +13,17 @@ import {
   TableRow,
 } from "@morpho-org/uikit/components/shadcn/table";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@morpho-org/uikit/components/shadcn/tooltip";
-import { formatLtv, formatBalanceWithSymbol, Token, abbreviateAddress } from "@morpho-org/uikit/lib/utils";
+import {
+  formatLtv,
+  formatBalanceWithSymbol,
+  Token,
+  abbreviateAddress,
+  getChainSlug,
+} from "@morpho-org/uikit/lib/utils";
 import { blo } from "blo";
 import { CheckCheck, Copy, ExternalLink, Info } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 import { type Chain, type Hex, type Address } from "viem";
 
 import { BorrowSheetContent } from "@/components/borrow-sheet-content";
@@ -298,7 +306,8 @@ export function BorrowTable({
           </TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Rate</TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Vault Listing</TableHead>
-          <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light">ID</TableHead>
+          <TableHead className="text-secondary-foreground text-xs font-light">ID</TableHead>
+          <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -344,8 +353,18 @@ export function BorrowTable({
                     chain={chain}
                   />
                 </TableCell>
-                <TableCell className="rounded-r-lg">
+                <TableCell>
                   <IdTableCell marketId={market.id} />
+                </TableCell>
+                <TableCell className="rounded-r-lg">
+                  <Link
+                    to={`/${chain ? getChainSlug(chain) : ""}/market/${market.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button variant="secondary" size="sm">
+                      Details
+                    </Button>
+                  </Link>
                 </TableCell>
               </TableRow>
             </SheetTrigger>

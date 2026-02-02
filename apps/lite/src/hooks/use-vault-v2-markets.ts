@@ -23,13 +23,7 @@ const STALE_TIME = 5 * 60 * 1000;
  * Hook to fetch VaultV2 data and extract Morpho Blue market IDs from its adapters.
  * Only activates if there are VaultV2 overrides configured for the given chainId.
  */
-export function useVaultV2Markets({
-  chainId,
-  userAddress,
-}: {
-  chainId: number | undefined;
-  userAddress?: Address;
-}) {
+export function useVaultV2Markets({ chainId, userAddress }: { chainId: number | undefined; userAddress?: Address }) {
   const vaultAddresses = useMemo(() => (chainId !== undefined ? (VAULT_V2_OVERRIDES[chainId] ?? []) : []), [chainId]);
   const hasVaultV2 = vaultAddresses.length > 0;
 

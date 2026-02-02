@@ -1,6 +1,20 @@
 // Minimal VaultV2 ABI - only view functions needed for data fetching
 export const vaultV2Abi = [
   {
+    inputs: [{ internalType: "bytes4", name: "selector", type: "bytes4" }],
+    name: "timelock",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "bytes4", name: "selector", type: "bytes4" }],
+    name: "abdicated",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "uint256", name: "index", type: "uint256" }],
     name: "adapters",
     outputs: [{ internalType: "address", name: "", type: "address" }],

@@ -31,13 +31,7 @@ const STYLE_INPUT_WRAPPER =
   "bg-primary hover:bg-secondary flex flex-col gap-4 rounded-2xl p-4 transition-colors duration-200 ease-in-out";
 const STYLE_INPUT_HEADER = "text-secondary-foreground flex items-center justify-between text-xs font-light";
 
-export function VaultV2EarnSheetContent({
-  vault,
-  asset,
-}: {
-  vault: VaultV2Data;
-  asset: Token;
-}) {
+export function VaultV2EarnSheetContent({ vault, asset }: { vault: VaultV2Data; asset: Token }) {
   const { address: userAddress } = useAccount();
 
   const [selectedTab, setSelectedTab] = useState(Actions.Deposit);

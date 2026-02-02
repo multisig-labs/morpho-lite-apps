@@ -3,6 +3,7 @@ import { JSX } from "react";
 import {
   abstract,
   arbitrum,
+  avalanche,
   base,
   bitlayer,
   bsc,
@@ -30,6 +31,7 @@ import {
 
 import AbstractSvg from "@/assets/chains/abstract.svg?react";
 import ArbitrumSvg from "@/assets/chains/arb.svg?react";
+import AvalancheSvg from "@/assets/chains/avalanche.svg?react";
 import BaseSvg from "@/assets/chains/base.svg?react";
 import BitlayerSvg from "@/assets/chains/bitlayer.svg?react";
 import BscSvg from "@/assets/chains/bnb.svg?react";
@@ -66,6 +68,8 @@ export function ChainIcon({ id }: { id: number | undefined }): JSX.Element {
       return <AbstractSvg />;
     case arbitrum.id:
       return <ArbitrumSvg />;
+    case avalanche.id:
+      return <AvalancheSvg />;
     case base.id:
       return <BaseSvg />;
     case bitlayer.id:

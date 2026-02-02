@@ -80,6 +80,10 @@ export type Token = { address: Address; symbol?: string; decimals?: number; imag
 export function getTokenSymbolURI(symbol: string | undefined): Token["imageSrc"] {
   if (!symbol) {
     return undefined;
+  } else if (symbol === "WAVAX") {
+    return "https://s2.coinmarketcap.com/static/img/coins/64x64/9462.png";
+  } else if (symbol === "stAVAX") {
+    return "https://s2.coinmarketcap.com/static/img/coins/64x64/29688.png";
   } else if (symbol === "USDC.e") {
     symbol = "USDC";
   } else if (symbol === "WLD") {

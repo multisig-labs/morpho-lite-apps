@@ -15,7 +15,7 @@ import {
 } from "@morpho-org/uikit/components/shadcn/table";
 import { TooltipContent } from "@morpho-org/uikit/components/shadcn/tooltip";
 import { getContractDeploymentInfo } from "@morpho-org/uikit/lib/deployments";
-import { abbreviateAddress, formatBalanceWithSymbol } from "@morpho-org/uikit/lib/utils";
+import { abbreviateAddress, formatApy, formatBalanceWithSymbol } from "@morpho-org/uikit/lib/utils";
 import { blo } from "blo";
 // @ts-expect-error: this package lacks types
 import humanizeDuration from "humanize-duration";
@@ -25,6 +25,7 @@ import { Link, useParams } from "react-router";
 import { type Address, erc20Abi, type Hex, toFunctionSelector, zeroAddress } from "viem";
 import { useChainId, useChains, useReadContracts } from "wagmi";
 
+import { getVaultV2Curator } from "@/lib/curators";
 import { getTokenURI } from "@/lib/tokens";
 
 // Timelocked function definitions for VaultV2
@@ -37,15 +38,15 @@ const TIMELOCKED_FUNCTIONS = [
   { name: "Set adapter registry", signature: "setAdapterRegistry(address)" },
   { name: "Add adapter", signature: "addAdapter(address,uint128,uint128)" },
   { name: "Remove adapter", signature: "removeAdapter(address)" },
-  { name: "Increase timelock duration", signature: "increaseTimelock(bytes4,uint256)" },
   { name: "Set performance fee", signature: "setPerformanceFee(uint256)" },
   { name: "Set management fee", signature: "setManagementFee(uint256)" },
   { name: "Set performance fee recipient", signature: "setPerformanceFeeRecipient(address)" },
   { name: "Set management fee recipient", signature: "setManagementFeeRecipient(address)" },
-  { name: "Increase absolute cap", signature: "increaseAbsoluteCap(address,uint256)" },
-  { name: "Increase relative cap", signature: "increaseRelativeCap(address,uint256)" },
+  { name: "Increase absolute cap", signature: "increaseAbsoluteCap(bytes,uint256)" },
+  { name: "Decrease absolute cap", signature: "decreaseAbsoluteCap(bytes,uint256)" },
+  { name: "Increase relative cap", signature: "increaseRelativeCap(bytes,uint256)" },
+  { name: "Decrease relative cap", signature: "decreaseRelativeCap(bytes,uint256)" },
   { name: "Set force deallocate penalty", signature: "setForceDeallocatePenalty(address,uint256)" },
-  { name: "Abdicate", signature: "abdicate(bytes4)" },
 ] as const;
 
 function AttributeRow({
@@ -87,6 +88,10 @@ export function VaultV2DetailsPage() {
   const chains = useChains();
   const chain = chains.find((c) => c.id === chainId);
   const chainExplorerUrl = chain?.blockExplorers?.default.url;
+  const curator = useMemo(
+    () => (vaultAddress ? getVaultV2Curator(chainId, vaultAddress as Address) : undefined),
+    [chainId, vaultAddress],
+  );
 
   // Get Morpho deployment for this chain
   const morpho = useMemo(() => getContractDeploymentInfo(chainId, "Morpho"), [chainId]);
@@ -103,6 +108,8 @@ export function VaultV2DetailsPage() {
           { chainId, address: vaultAddress as Address, abi: vaultV2Abi, functionName: "adaptersLength" } as const,
           { chainId, address: vaultAddress as Address, abi: vaultV2Abi, functionName: "asset" } as const,
           { chainId, address: vaultAddress as Address, abi: vaultV2Abi, functionName: "totalAssets" } as const,
+          { chainId, address: vaultAddress as Address, abi: vaultV2Abi, functionName: "performanceFee" } as const,
+          { chainId, address: vaultAddress as Address, abi: vaultV2Abi, functionName: "managementFee" } as const,
         ]
       : [],
     allowFailure: true,
@@ -351,6 +358,8 @@ export function VaultV2DetailsPage() {
   const vaultName = vaultData?.[0]?.result as string | undefined;
   const owner = vaultData?.[1]?.result as Address | undefined;
   const totalAssets = vaultData?.[4]?.result as bigint | undefined;
+  const performanceFee = vaultData?.[5]?.result as bigint | undefined;
+  const managementFee = vaultData?.[6]?.result as bigint | undefined;
 
   const assetSymbol = assetData?.[0]?.result as string | undefined;
   const assetDecimals = assetData?.[1]?.result as number | undefined;
@@ -447,6 +456,25 @@ export function VaultV2DetailsPage() {
           <div className="mb-6 flex flex-col">
             <AttributeRow label="Owner" chainExplorerUrl={chainExplorerUrl} address={owner}>
               {owner ? (owner === zeroAddress ? "None" : abbreviateAddress(owner)) : "Loading..."}
+            </AttributeRow>
+
+            <AttributeRow label="Curator" chainExplorerUrl={chainExplorerUrl} address={curator?.address}>
+              {curator ? (
+                <span className="flex items-center gap-2">
+                  {curator.name}
+                  <code>{abbreviateAddress(curator.address)}</code>
+                </span>
+              ) : (
+                "Not configured"
+              )}
+            </AttributeRow>
+
+            <AttributeRow label="Performance Fee">
+              {performanceFee !== undefined ? formatApy(performanceFee) : "Loading..."}
+            </AttributeRow>
+
+            <AttributeRow label="Management Fee">
+              {managementFee !== undefined ? formatApy(managementFee) : "Loading..."}
             </AttributeRow>
 
             <AttributeRow label="Vault Type">VaultV2</AttributeRow>

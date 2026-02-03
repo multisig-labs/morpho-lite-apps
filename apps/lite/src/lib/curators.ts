@@ -20,11 +20,34 @@ export const MANUALLY_WHITELISTED_CURATORS: FragmentOf<typeof CuratorFragment>[]
     addresses: [{ address: "0xf5c149aCB200f5BC8FC5e51dF4a7DEf38d64cfB2", chainId: avalanche.id }],
     image: "https://cdn.morpho.org/v2/assets/images/re7.png",
     name: "Hypha",
-    url: "https://hypha.sh/",
+    url: "https://www.hypha.sh/",
   },
 ];
 
 export const ADDITIONAL_OFFCHAIN_CURATORS: Record<Address, DisplayableCurators> = {};
+
+export type VaultV2CuratorInfo = {
+  name: string;
+  address: Address;
+  url?: string | null;
+  imageSrc?: string | null;
+};
+
+export const VAULT_V2_CURATORS: Record<number, Record<string, VaultV2CuratorInfo>> = {
+  [avalanche.id]: {
+    "0x10f547614327d67d2f19a3d04c49550e4d07ad04": {
+      name: "Hypha",
+      address: "0xf5c149acb200f5bc8fc5e51df4a7def38d64cfb2",
+      url: "https://www.hypha.sh/",
+      imageSrc: "https://lending.hypha.sh/favicon.svg",
+    },
+  },
+};
+
+export function getVaultV2Curator(chainId: number | undefined, vaultAddress: Address): VaultV2CuratorInfo | undefined {
+  if (chainId === undefined) return undefined;
+  return VAULT_V2_CURATORS[chainId]?.[vaultAddress.toLowerCase()];
+}
 
 export type DisplayableCurators = {
   [name: string]: {

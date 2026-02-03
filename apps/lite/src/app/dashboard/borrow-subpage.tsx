@@ -303,7 +303,6 @@ export function BorrowSubPage() {
               markets={marketsArr}
               tokens={tokens}
               marketVaults={marketVaults}
-              borrowingRewards={borrowingRewards}
               refetchPositions={refetchPositionsRaw}
             />
           </div>

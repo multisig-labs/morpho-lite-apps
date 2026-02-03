@@ -1,4 +1,5 @@
 import { vaultV2Abi } from "@morpho-org/uikit/assets/abis/vault-v2";
+import { SafeLink } from "@morpho-org/uikit/components/safe-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@morpho-org/uikit/components/shadcn/avatar";
 import { Button } from "@morpho-org/uikit/components/shadcn/button";
 import { Sheet, SheetTrigger } from "@morpho-org/uikit/components/shadcn/sheet";
@@ -21,6 +22,7 @@ import { useReadContracts } from "wagmi";
 
 import { VaultV2EarnSheetContent } from "@/components/vault-v2-earn-sheet-content";
 import { type VaultV2Data } from "@/hooks/use-vault-v2-markets";
+import { getVaultV2Curator, type VaultV2CuratorInfo } from "@/lib/curators";
 import { getTokenURI } from "@/lib/tokens";
 
 function VaultTableCell({
@@ -68,6 +70,59 @@ function VaultTableCell({
               </a>
             )}
           </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function VaultV2CuratorCell({ curator, chain }: { curator: VaultV2CuratorInfo | undefined; chain: Chain | undefined }) {
+  if (!curator) {
+    return <span className="text-secondary-foreground">－</span>;
+  }
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="hover:bg-secondary flex w-min items-center gap-2 rounded-sm p-2">
+            <Avatar className="h-4 w-4 rounded-full">
+              <AvatarImage src={curator.imageSrc ?? undefined} alt={curator.name} />
+              <AvatarFallback delayMs={1000}>
+                <img src={blo(curator.address)} />
+              </AvatarFallback>
+            </Avatar>
+            {curator.name}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          className="text-primary-foreground rounded-3xl p-4 shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p className="underline">Curator</p>
+          <br />
+          <div className="flex items-center gap-1">
+            <p>
+              Address: <code>{abbreviateAddress(curator.address)}</code>
+            </p>
+            {chain?.blockExplorers?.default.url && (
+              <a
+                href={`${chain.blockExplorers.default.url}/address/${curator.address}`}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            )}
+          </div>
+          {curator.url ? (
+            <>
+              <br />
+              <SafeLink className="text-blue-200 underline" href={curator.url}>
+                {curator.url}
+              </SafeLink>
+            </>
+          ) : null}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -133,6 +188,7 @@ export function VaultV2EarnTable({
           <TableHead className="text-secondary-foreground rounded-l-lg pl-4 text-xs font-light">Vault</TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Deposits</TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Owner</TableHead>
+          <TableHead className="text-secondary-foreground text-xs font-light">Curator</TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Type</TableHead>
           <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light"></TableHead>
         </TableRow>
@@ -152,6 +208,7 @@ export function VaultV2EarnTable({
           }
 
           const imageSrc = getTokenURI({ symbol: token?.symbol, address: vault.asset, chainId });
+          const curator = getVaultV2Curator(chainId, vault.address);
 
           return (
             <Sheet
@@ -172,6 +229,9 @@ export function VaultV2EarnTable({
                   </TableCell>
                   <TableCell>
                     <code>{abbreviateAddress(vault.owner)}</code>
+                  </TableCell>
+                  <TableCell>
+                    <VaultV2CuratorCell curator={curator} chain={chain} />
                   </TableCell>
                   <TableCell>
                     <span className="text-xs text-gray-400">VaultV2</span>

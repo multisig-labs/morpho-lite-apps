@@ -263,14 +263,12 @@ export function BorrowTable({
   markets,
   tokens,
   marketVaults,
-  borrowingRewards,
   refetchPositions,
 }: {
   chain: Chain | undefined;
   markets: Market[];
   tokens: Map<Address, Token>;
   marketVaults: Map<Hex, { name: string; address: Address; totalAssets: bigint; curators: DisplayableCurators }[]>;
-  borrowingRewards: ReturnType<typeof useMerklOpportunities>;
   refetchPositions: () => void;
 }) {
   return (
@@ -305,7 +303,6 @@ export function BorrowTable({
             </div>
           </TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Rate</TableHead>
-          <TableHead className="text-secondary-foreground text-xs font-light">Vault Listing</TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">ID</TableHead>
           <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light"></TableHead>
         </TableRow>
@@ -338,13 +335,6 @@ export function BorrowTable({
                         true,
                       )
                     : "－"}
-                </TableCell>
-                <TableCell>
-                  <ApyTableCell
-                    nativeApy={market.borrowApy}
-                    rewards={borrowingRewards.get(market.id) ?? []}
-                    mode="owe"
-                  />
                 </TableCell>
                 <TableCell>
                   <VaultsTableCell

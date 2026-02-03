@@ -11,6 +11,7 @@ import { ReactNode } from "react";
 import { Client as UrqlClient, Provider as UrqlProvider, fetchExchange } from "urql";
 import { type Config, deserialize, serialize, WagmiProvider } from "wagmi";
 
+import { HyphaFooter } from "@/components/hypha-footer";
 import { TERMS_OF_USE } from "@/lib/constants";
 import { createConfig } from "@/lib/wagmi-config";
 
@@ -61,7 +62,10 @@ function App({ children, wagmiConfig = defaultWagmiConfig }: { children: ReactNo
           <UrqlProvider value={urqlClient}>
             <AddressScreeningProvider>
               <SafeLinksProvider>
-                {children}
+                <div className="flex min-h-screen flex-col">
+                  <div className="flex-1">{children}</div>
+                  <HyphaFooter />
+                </div>
                 <SafeLinkModal />
               </SafeLinksProvider>
               <AddressScreeningModal />

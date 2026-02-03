@@ -24,6 +24,7 @@ const chains = [avalanche] as const;
 
 const transports: { [K in (typeof chains)[number]["id"]]: Transport } & { [k: number]: Transport } = {
   [avalanche.id]: createFallbackTransport([
+    { url: "https://api.avax.network/ext/bc/C/rpc", batch: { batchSize: 10 } },
     { url: "https://avalanche.gateway.tenderly.co", batch: { batchSize: 10 } },
     { url: "https://avalanche.drpc.org", batch: false },
   ]),

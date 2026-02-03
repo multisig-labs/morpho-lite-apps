@@ -6,12 +6,12 @@ import { avalanche, hemi, optimism, plumeMainnet, polygon, sei, worldchain } fro
 export const APP_DETAILS = {
   // NOTE: Should always match the title in `index.html` (won't break anything, but should be correct)
   name: import.meta.env.VITE_APP_TITLE,
-  description: "A minimal and open-source version of the main Morpho App",
-  url: "https://lite.morpho.org",
+  description: "Hypha Borrow / Lend (Morpho)",
+  url: "https://lending.hypha.sh",
   icon: "/favicon.svg",
 };
 
-export const WORDMARK = ""; // Replace with "/your-wordmark.svg" to customize interface
+export const WORDMARK = "/hypha.svg"; // Replace with "/your-wordmark.svg" to customize interface
 
 export const MIN_TIMELOCK = 3 * 24 * 60 * 60; // For filtering vaults
 
@@ -19,7 +19,7 @@ export const DEFAULT_CHAIN = avalanche;
 
 export const TRANSACTION_DATA_SUFFIX = "0x117E"; // (L I T E)
 
-export const TERMS_OF_USE = "https://cdn.morpho.org/documents/Morpho_Terms_of_Use.pdf";
+export const TERMS_OF_USE = "https://www.hypha.sh/terms";
 export const RISKS_DOCUMENTATION = "https://docs.morpho.org/learn/resources/risks/";
 export const ADDRESSES_DOCUMENTATION = "https://docs.morpho.org/getting-started/resources/addresses/";
 export const SHARED_LIQUIDITY_DOCUMENTATION = "https://docs.morpho.org/build/borrow/concepts/public-allocator";

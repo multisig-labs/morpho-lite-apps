@@ -434,7 +434,7 @@ export function VaultV2DetailsPage() {
           </div>
         </div>
 
-        <div className="bg-primary rounded-2xl p-6">
+        <div className="bg-primary mb-8 rounded-2xl p-6">
           <div className="mb-6 flex items-center gap-3">
             <div className="size-6 [&>svg]:size-6">
               <ChainIcon id={chainId} />

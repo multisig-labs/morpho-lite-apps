@@ -37,6 +37,7 @@ export function createConfig(args: {
 }) {
   return createWagmiConfig(
     createConnectKitConfigParams({
+      enableFamily: false,
       chains: args.chains ?? chains,
       transports: args.transports ?? transports,
       connectors: args.connectors,

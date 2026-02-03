@@ -308,17 +308,6 @@ export function EarnSubPage() {
               />
             </div>
           )}
-          {/* VaultV2 user positions */}
-          {hasVaultV2 && vaultV2Data.some((v) => (v.userShares ?? 0n) > 0n) && (
-            <div className="bg-linear-to-b lg:pt-22 flex h-fit w-full flex-col items-center from-transparent to-white/[0.03] pb-20">
-              <VaultV2EarnTable
-                chain={chain}
-                vaults={vaultV2Data.filter((v) => (v.userShares ?? 0n) > 0n)}
-                depositsMode="userAssets"
-                refetchPositions={refetchVaultV2Balances}
-              />
-            </div>
-          )}
         </>
       )}
       {/*

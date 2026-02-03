@@ -12,6 +12,7 @@ import { MarketDetailsPage } from "@/app/market/page.tsx";
 import { VaultDetailsPage } from "@/app/vault/page.tsx";
 import { VaultV2DetailsPage } from "@/app/vault-v2/page.tsx";
 import App from "@/App.tsx";
+import { DetailsLayout } from "@/components/details-layout";
 import { DEFAULT_CHAIN } from "@/lib/constants";
 
 createRoot(document.getElementById("root")!).render(
@@ -33,9 +34,11 @@ createRoot(document.getElementById("root")!).render(
               <Route path="earn" element={<EarnSubPage />} />
               <Route path="borrow" element={<BorrowSubPage />} />
             </Route>
-            <Route path="market/:id" element={<MarketDetailsPage />} />
-            <Route path="vault/:address" element={<VaultDetailsPage />} />
-            <Route path="vault-v2/:address" element={<VaultV2DetailsPage />} />
+            <Route element={<DetailsLayout />}>
+              <Route path="market/:id" element={<MarketDetailsPage />} />
+              <Route path="vault/:address" element={<VaultDetailsPage />} />
+              <Route path="vault-v2/:address" element={<VaultV2DetailsPage />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

@@ -22,7 +22,7 @@ import * as Merkl from "@/hooks/use-merkl-campaigns";
 import { useMerklOpportunities } from "@/hooks/use-merkl-opportunities";
 import { useTopNCurators } from "@/hooks/use-top-n-curators";
 import { useVaultV2Markets } from "@/hooks/use-vault-v2-markets";
-import { type DisplayableCurators, getDisplayableCurators } from "@/lib/curators";
+import { type DisplayableCurators, getDisplayableCurators, getVaultV2Curator } from "@/lib/curators";
 import { CREATE_METAMORPHO_EVENT_OVERRIDES, getDeploylessMode, getShouldEnforceDeadDeposit } from "@/lib/overrides";
 import { getTokenURI } from "@/lib/tokens";
 
@@ -164,6 +164,19 @@ export function BorrowSubPage() {
 
     // Add VaultV2 vaults (for chains like Avalanche)
     vaultV2Data.forEach((vault) => {
+      const vaultV2Curator = getVaultV2Curator(chainId, vault.address);
+      const vaultV2Curators: DisplayableCurators = vaultV2Curator
+        ? {
+            [vaultV2Curator.name]: {
+              name: vaultV2Curator.name,
+              roles: [{ name: "Curator", address: vaultV2Curator.address }],
+              url: vaultV2Curator.url ?? null,
+              imageSrc: vaultV2Curator.imageSrc ?? null,
+              shouldAlwaysShow: true,
+            },
+          }
+        : {};
+
       vault.marketIds.forEach((marketId) => {
         if (!map.has(marketId)) {
           map.set(marketId, []);
@@ -172,8 +185,7 @@ export function BorrowSubPage() {
           name: vault.name,
           address: vault.address,
           totalAssets: vault.totalAssets,
-          // VaultV2 doesn't use the same curator system, so we pass empty curators
-          curators: {},
+          curators: vaultV2Curators,
         });
       });
     });

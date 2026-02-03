@@ -28,9 +28,11 @@ import { type Chain, type Hex, type Address } from "viem";
 
 import { BorrowSheetContent } from "@/components/borrow-sheet-content";
 import { ApyTableCell } from "@/components/table-cells/apy-table-cell";
-import { type useMerklOpportunities } from "@/hooks/use-merkl-opportunities";
+import { type MerklOpportunities, type useMerklOpportunities } from "@/hooks/use-merkl-opportunities";
 import { SHARED_LIQUIDITY_DOCUMENTATION } from "@/lib/constants";
 import { type DisplayableCurators } from "@/lib/curators";
+
+const EMPTY_REWARDS: MerklOpportunities = [];
 
 function TokenTableCell({ address, symbol, imageSrc, chain }: Token & { chain: Chain | undefined }) {
   return (
@@ -209,9 +211,11 @@ function VaultsTableCell({
           }
         }
 
-        if (!logoUrl) console.log(logoUrl, vault);
+        if (!logoUrl) {
+          logoUrl = token.imageSrc ?? blo(vault.address);
+        }
 
-        return { logoUrl: logoUrl ?? "", hoverCardContent };
+        return { logoUrl, hoverCardContent };
       })}
       align="left"
       maxItems={5}
@@ -303,6 +307,7 @@ export function BorrowTable({
             </div>
           </TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">Rate</TableHead>
+          <TableHead className="text-secondary-foreground text-xs font-light">Vaults</TableHead>
           <TableHead className="text-secondary-foreground text-xs font-light">ID</TableHead>
           <TableHead className="text-secondary-foreground rounded-r-lg text-xs font-light"></TableHead>
         </TableRow>
@@ -335,6 +340,9 @@ export function BorrowTable({
                         true,
                       )
                     : "－"}
+                </TableCell>
+                <TableCell>
+                  <ApyTableCell nativeApy={market.borrowApy} rewards={EMPTY_REWARDS} mode="owe" />
                 </TableCell>
                 <TableCell>
                   <VaultsTableCell

@@ -1,7 +1,8 @@
-import { getDefaultConfig as createConnectKitConfigParams } from "connectkit";
+import { getDefaultConfig as createConnectKitConfigParams, getDefaultConnectors } from "connectkit";
 import type { Chain, HttpTransportConfig } from "viem";
 import { CreateConnectorFn, createConfig as createWagmiConfig, fallback, http, type Transport } from "wagmi";
 import { avalanche } from "wagmi/chains";
+import { safe } from "wagmi/connectors";
 
 import { APP_DETAILS } from "@/lib/constants";
 
@@ -35,17 +36,44 @@ export function createConfig(args: {
   transports?: { [k: number]: Transport };
   connectors?: CreateConnectorFn[];
 }) {
+  const app = {
+    name: APP_DETAILS.name,
+    description: APP_DETAILS.description,
+    url: APP_DETAILS.url,
+    icon: APP_DETAILS.icon,
+  };
+  const walletConnectProjectId = import.meta.env.VITE_WALLET_KIT_PROJECT_ID;
+
+  const defaultConnectors = getDefaultConnectors({
+    app,
+    walletConnectProjectId,
+    enableFamily: false,
+  });
+
+  const isSafeApp = typeof window !== "undefined" && window.parent !== window;
+  const connectors = args.connectors
+    ? args.connectors
+    : isSafeApp
+      ? [
+          safe({
+            allowedDomains: [/gnosis-safe.io$/, /app.safe.global$/],
+            unstable_getInfoTimeout: 1000,
+          }),
+          ...defaultConnectors.filter((connector) => connector.id !== "safe"),
+        ]
+      : defaultConnectors;
+
   return createWagmiConfig(
     createConnectKitConfigParams({
       enableFamily: false,
       chains: args.chains ?? chains,
       transports: args.transports ?? transports,
-      connectors: args.connectors,
-      walletConnectProjectId: import.meta.env.VITE_WALLET_KIT_PROJECT_ID,
-      appName: APP_DETAILS.name,
-      appDescription: APP_DETAILS.description,
-      appUrl: APP_DETAILS.url,
-      appIcon: APP_DETAILS.icon,
+      connectors,
+      walletConnectProjectId,
+      appName: app.name,
+      appDescription: app.description,
+      appUrl: app.url,
+      appIcon: app.icon,
       batch: {
         multicall: {
           batchSize: 2 ** 16,

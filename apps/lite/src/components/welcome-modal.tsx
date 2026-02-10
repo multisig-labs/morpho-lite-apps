@@ -24,23 +24,13 @@ export function WelcomeModal() {
         <AlertDialogHeader>
           <AlertDialogTitle className="mb-3 text-2xl font-light">Welcome!</AlertDialogTitle>
           <AlertDialogDescription className="bg-secondary text-secondary-foreground rounded-lg p-4 font-light">
-            You are using Morpho Lite.
+            You are using Hypha Borrow / Lend.
             <br />
             <br />
-            This streamlined app gives you access to core features—supply in vaults and borrow from markets—but excludes
-            some main‑app features, data, and content. Learn more{" "}
-            <a
-              className="underline"
-              href="https://morpho.org/blog/introducing-morpho-lite/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              here
-            </a>
-            .
+            This app interacts with the Morpho Blue contracts on the Avalanche network.
             <br />
             <br />
-            By continuing, you agree to Morpho's{" "}
+            By continuing, you agree to Hypha's{" "}
             <a className="underline" href={TERMS_OF_USE} rel="noopener noreferrer" target="_blank">
               Terms of Use
             </a>

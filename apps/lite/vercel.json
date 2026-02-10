@@ -1,3 +1,22 @@
 {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://*.hypha.sh https://*.coinmarketcap.com; font-src 'self'; connect-src 'self' https://*.morpho.org https://avalanche.gateway.tenderly.co https://api.avax.network https://avalanche.drpc.org https://*.walletconnect.com https://api.merkl.xyz https://www.google.com wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https://cdn.morpho.org; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'self' https://*.walletconnect.org/ https://*.walletconnect.com; frame-ancestors 'self' https://app.safe.global; upgrade-insecure-requests; block-all-mixed-content;"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+    },
+    {
+      "source": "/safe-app-icon.svg",
+      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+    }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }

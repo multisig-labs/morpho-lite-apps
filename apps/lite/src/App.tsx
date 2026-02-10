@@ -7,12 +7,13 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { ConnectKitProvider } from "connectkit";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Client as UrqlClient, Provider as UrqlProvider, fetchExchange } from "urql";
 import { type Config, deserialize, serialize, WagmiProvider } from "wagmi";
 
 import { HyphaFooter } from "@/components/hypha-footer";
 import { TERMS_OF_USE } from "@/lib/constants";
+import { initSafeApp } from "@/lib/safe-app";
 import { createConfig } from "@/lib/wagmi-config";
 
 const defaultWagmiConfig = createConfig({});
@@ -41,6 +42,10 @@ const urqlClient = new UrqlClient({
 });
 
 function App({ children, wagmiConfig = defaultWagmiConfig }: { children: ReactNode; wagmiConfig?: Config }) {
+  useEffect(() => {
+    void initSafeApp();
+  }, []);
+
   return (
     <WagmiProvider config={wagmiConfig}>
       <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, buster: "v1" }}>
